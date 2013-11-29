@@ -18,7 +18,7 @@ import com.prince.reversi.view.ReversiView.ViewStateListenner;
 public class ReversiActivity extends Activity {
 	private ReversiView reversiView;
 	private ReversiBoard board;
-	private ReversiAi ai;
+	private ReversiAi ai ;
 	private Handler handler;
     @Override
     public void onCreate(Bundle savedInstanceState) {
