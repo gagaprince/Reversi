@@ -13,7 +13,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -144,10 +143,8 @@ public class ReversiView extends View{
 	}
 	private void drawChess(int chess,int j,int i){
 		if(chess==ReversiBoard.BLACK){
-			Log.e("drawChess", "黑色棋子"+j+"——"+i);
 			drawChess(blackChess, j, i);
 		}else if(chess==ReversiBoard.WHITE){
-			Log.e("drawChess", "白色棋子"+j+"——"+i);
 			drawChess(whiteChess, j, i);
 		}
 	}
@@ -167,7 +164,6 @@ public class ReversiView extends View{
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.e("onTouchEvent", "hasMeasured:"+hasMeasured);
 		if(!hasMeasured)return super.onTouchEvent(event);
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
@@ -180,7 +176,6 @@ public class ReversiView extends View{
 				float upY = event.getY();
 				int x = (int)(upX*boardWhith/viewWidth-marginLeft)/chessWhith;
 				int y = (int)(upY*boardWhith/viewWidth-marginTop)/chessHeight;
-				Log.e("onTouchEvent", "x="+x+";y="+y);
 				excuteViewOnclick(x, y);
 			}
 			break;
@@ -204,7 +199,6 @@ public class ReversiView extends View{
 			int size = viewStateListennerList.size();
 			for(int i=0;i<size;i++){
 				ViewStateListenner vl = viewStateListennerList.get(i);
-				Log.e("onviewClick", "x="+x+";y="+y);
 				vl.onBoardClick(x, y);
 			}
 		}

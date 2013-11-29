@@ -3,10 +3,21 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-	<com.prince.reversi.view.ReversiView
-	    android:id="@+id/reversiView"
+	<RelativeLayout 
 	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content">
-	</com.prince.reversi.view.ReversiView>
-
+	    android:layout_height="fill_parent"
+	    android:orientation="vertical"
+	    >
+	    <com.prince.reversi.view.ReversiView
+		    android:id="@+id/reversiView"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content">
+		</com.prince.reversi.view.ReversiView>
+		<Button
+	        android:id="@+id/xian"
+	        android:layout_alignParentBottom="true"
+	        android:layout_width="fill_parent"
+	        android:layout_height="40dp"
+	        android:text="机器人先" />
+	</RelativeLayout>
 </LinearLayout>

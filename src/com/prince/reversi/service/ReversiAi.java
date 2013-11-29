@@ -20,7 +20,7 @@ public class ReversiAi {
 	public static final int[] EVAL_SCORES = {500, -150, 30, 10, 10, 30, -150, 500, -150, -250, 0, 0, 0, 0, -250, -150, 30, 0, 1, 2, 2, 1, 0, 30, 10, 0, 2, 16, 16, 2, 0, 10, 10, 0, 2, 16, 16, 2, 0, 10, 30, 0, 1, 2, 2, 1, 0, 30, -150, -250, 0, 0, 0, 0, -250, -150, 500, -150, 30, 10, 10, 30, -150, 500};
 	public static final int BONUS_SCORE = 30;
 	public static final int LIBERTY_SCORE = 8;
-	public static final int YU_CHESSCOUNT = 18;//终局遍历时剩余棋子数
+	public static final int YU_CHESSCOUNT = 8;//终局遍历时剩余棋子数
 	public static final int DEEP_LENGTH=4;//普通情况下的搜索深度
 	private int boardLength;
 	
@@ -57,11 +57,12 @@ public class ReversiAi {
 			}
 			Log.e("findBestStep","没有最近走法 采取探索走法");
 		}
+		Log.e("findBestStep", "当前共有棋子"+allChessCount);
 		if (allChessCount>=boardLength*boardLength-YU_CHESSCOUNT) {//如果剩余18个子位置 进入终局遍历状态
 			Log.e("findBestStep","开始终局搜索");
 			int deeplength = boardLength*boardLength-allChessCount;
 			Log.e("findBestStep","终局搜索深度："+deeplength);
-			ScorePoint sp = deepSearch(board, chessType,chessType, deeplength, -INFINITE, INFINITE);
+			ScorePoint sp = deepSearch(board, chessType,chessType, deeplength, -INFINITE, INFINITE,false);
 			Log.e("findBestStep","终局搜索结果,最佳点x="+sp.getP().getX()+",y="+sp.getP().getY());
 			if (sp.getScore()!=(-INFINITE)) {
 				return sp.getP();
@@ -71,7 +72,7 @@ public class ReversiAi {
 		int deeplength = DEEP_LENGTH;
 		Log.e("findBestStep","普通深度搜索，深度："+deeplength);
 		//开始深度搜索 棋盘状态 当前下子玩家 探索深度 
-		ScorePoint sp = deepSearch(board, chessType,chessType, deeplength, -INFINITE, INFINITE); 
+		ScorePoint sp = deepSearch(board, chessType,chessType, deeplength, -INFINITE, INFINITE,true); 
 		Log.e("findBestStep","普通深度搜索结果,最佳点x="+sp.getP().getX()+",y="+sp.getP().getY());
 		return sp.getP();
 	}
@@ -225,9 +226,13 @@ public class ReversiAi {
 	 * @param youScore
 	 * @return
 	 */
-	private ScorePoint deepSearch(ReversiBoard board,int chessType,int nowChessType,int deepLength,int meScore,int youScore){
+	private ScorePoint deepSearch(ReversiBoard board,int chessType,int nowChessType,int deepLength,int meScore,int youScore,boolean isSort){
 		if (deepLength == 0) {//搜索深度为0 直接返回
-			return new ScorePoint(calcularScore(board, chessType), null);
+			if(isSort){
+				return new ScorePoint(getScoreWhenCanPass(board, chessType), null);
+			}else{
+				return new ScorePoint(calcularScore(board, chessType), null);
+			}
 		}
 		final boolean isRobot = (nowChessType==chessType);	//判断是否是机器人玩家
 		int score = isRobot ? ( - INFINITE - 1) : (INFINITE + 1);	//平分上下界
@@ -236,19 +241,21 @@ public class ReversiAi {
 		int psize = plist.size();
 		if (psize>0){
 			final Map<Point,Integer> scoreMap = new HashMap<Point,Integer>();
-			for (int i=0; i<psize;i++){
-				Point pTemp=plist.get(i);
-				scoreMap.put(pTemp,getScoreIf(board, chessType,nowChessType, pTemp));	//获取如此下子的得分 
-			}
-			Collections.sort(plist,new Comparator<Point>(){
-				@Override
-				public int compare(Point lhs,Point rhs) {
-					int lhscore = scoreMap.get(lhs);
-					int rhscore = scoreMap.get(rhs);
-					return isRobot?rhscore-lhscore:lhscore-rhscore;
+			if(isSort){
+				for (int i=0; i<psize;i++){
+					Point pTemp=plist.get(i);
+					scoreMap.put(pTemp,getScoreIf(board, chessType,nowChessType, pTemp));	//获取如此下子的得分 
 				}
-			});
-			if (deepLength == 1) {//如果思考深度为1 返回u走法
+				Collections.sort(plist,new Comparator<Point>(){
+					@Override
+					public int compare(Point lhs,Point rhs) {
+						int lhscore = scoreMap.get(lhs);
+						int rhscore = scoreMap.get(rhs);
+						return isRobot?rhscore-lhscore:lhscore-rhscore;
+					}
+				});
+			}
+			if (deepLength == 1&&isSort) {//如果思考深度为1 返回u走法
 				returnPoint =plist.get(0);
 				score = scoreMap.get(returnPoint);
 			} else {//如果思考深度不为1 则递归此方法
@@ -256,7 +263,7 @@ public class ReversiAi {
 					Point p = plist.get(i);
 					board.putChessInPosition(p.getY(), p.getX(),nowChessType);
 					Log.e("deepSearch","普通深度搜索，深度："+(deepLength-1));
-					ScorePoint scoreN_1=deepSearch(board, chessType, (nowChessType==ReversiBoard.WHITE)?ReversiBoard.BLACK:ReversiBoard.WHITE, deepLength-1, meScore,youScore);
+					ScorePoint scoreN_1=deepSearch(board, chessType, (nowChessType==ReversiBoard.WHITE)?ReversiBoard.BLACK:ReversiBoard.WHITE, deepLength-1, meScore,youScore,isSort);
 					board.undo();
 					Log.e("deepSearch","scoreN_1.getScore："+scoreN_1.getScore());
 					if (isRobot) {
@@ -282,7 +289,7 @@ public class ReversiAi {
 			}
 		} else {
 			if (!board.isGameOver()) {
-				ScorePoint scoreN=deepSearch(board, chessType,(nowChessType==ReversiBoard.WHITE)?ReversiBoard.BLACK:ReversiBoard.WHITE, deepLength, meScore, youScore);
+				ScorePoint scoreN=deepSearch(board, chessType,(nowChessType==ReversiBoard.WHITE)?ReversiBoard.BLACK:ReversiBoard.WHITE, deepLength, meScore, youScore,isSort);
 				score = scoreN.getScore();
 				returnPoint = null;
 			} else {

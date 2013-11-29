@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.prince.reversi.bean.Point;
@@ -18,8 +21,12 @@ import com.prince.reversi.view.ReversiView.ViewStateListenner;
 public class ReversiActivity extends Activity {
 	private ReversiView reversiView;
 	private ReversiBoard board;
-	private ReversiAi ai ;
+	private ReversiAi ai;
 	private Handler handler;
+	private Button xian;
+	
+	private int selfchess=ReversiBoard.BLACK;
+	private int robotChess = ReversiBoard.WHITE;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +40,7 @@ public class ReversiActivity extends Activity {
 	        public void handleMessage(Message message) {
 	        	switch (message.arg1){
 	        		case 1:
-	        			reversiView.drawReversiViewByBoard(board,ReversiBoard.BLACK);
+	        			reversiView.drawReversiViewByBoard(board,selfchess);
 	        			break;
 	        		case 2:
 	        			Long time = (Long)message.obj;
@@ -45,6 +52,7 @@ public class ReversiActivity extends Activity {
     }
     public void initView(){
     	reversiView = (ReversiView)findViewById(R.id.reversiView);
+    	xian = (Button)findViewById(R.id.xian);
     	reversiView.addViewStateListenner(new ViewStateListenner() {
 			@Override
 			public void onPrepared() {
@@ -57,11 +65,11 @@ public class ReversiActivity extends Activity {
 					return ;
 				}
 				Log.e("onBoardClick", "点击棋盘x_y："+x+"_"+y);
-				Log.e("onBoardClick", "当前棋子："+ReversiBoard.BLACK);
-				boolean flag = board.putChessInPosition(y, x, ReversiBoard.BLACK);
+				Log.e("onBoardClick", "当前棋子："+selfchess);
+				boolean flag = board.putChessInPosition(y, x, selfchess);
 				Log.e("onBoardClick", "放置棋子成功"+flag);
 				if(flag){
-					reversiView.drawReversiViewByBoard(board,ReversiBoard.WHITE);
+					reversiView.drawReversiViewByBoard(board,robotChess);
 					Toast.makeText(ReversiActivity.this, "正在计算", Toast.LENGTH_SHORT).show();
 					new Thread(new Runnable() {
 						@Override
@@ -72,15 +80,25 @@ public class ReversiActivity extends Activity {
 								e.printStackTrace();
 							}
 							aiCalcular();
+							reversiView.canOnclick = true;
 						}
 					}).start();
+				}else{
+					reversiView.canOnclick = true;
 				}
-				reversiView.canOnclick = true;
+			}
+		});
+    	xian.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				selfchess=ReversiBoard.WHITE;
+				robotChess = ReversiBoard.BLACK;
+				aiCalcular();
 			}
 		});
     }
     private void aiCalcular(){
-    	int chessType = ReversiBoard.WHITE;
+    	int chessType =robotChess;
     	if(board.getPutableList(chessType).size()>0){
     		long timestart = new Date().getTime();
 			Point p = ai.findBestStep(board, chessType);
@@ -94,12 +112,10 @@ public class ReversiActivity extends Activity {
 			Log.e("onBoardClick", "机器放置棋子成功"+flag);
 			if(flag){
 				sendMessage(1);
-				if(board.getPutableList(ReversiBoard.BLACK).size()==0){
+				if(board.getPutableList(selfchess).size()==0){
 					aiCalcular();
 				}
 			}
-		}else{
-			reversiView.canOnclick = true;
 		}
     }
     private void sendMessage(int caseindex){
