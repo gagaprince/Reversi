@@ -46,6 +46,10 @@ public class ReversiActivity extends Activity {
 	        			Long time = (Long)message.obj;
 	        			Toast.makeText(ReversiActivity.this, "计算花费"+time+"ms", Toast.LENGTH_SHORT).show();
 	        			break;
+	        		case 3:
+	        			String msg = (String)message.obj;
+	        			Toast.makeText(ReversiActivity.this, msg, Toast.LENGTH_SHORT).show();
+	        			break;
 	        	}
 	        }  
 	    };
@@ -70,21 +74,24 @@ public class ReversiActivity extends Activity {
 				Log.e("onBoardClick", "放置棋子成功"+flag);
 				if(flag){
 					reversiView.drawReversiViewByBoard(board,robotChess);
-					Toast.makeText(ReversiActivity.this, "正在计算", Toast.LENGTH_SHORT).show();
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								Thread.sleep(200);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-							aiCalcular();
-							reversiView.canOnclick = true;
-						}
-					}).start();
 				}else{
 					reversiView.canOnclick = true;
+				}
+			}
+			@Override
+			public void onLastChessDraw(int deschess) {
+				if(board.isGameOver()){
+					sendMessage(3, "游戏结束");
+					return;
+				}
+				if(deschess==selfchess){
+					if(board.getPutableList(robotChess).size()!=0){
+						aiCalcular();
+					}
+				}else{
+					if(board.getPutableList(selfchess).size()==0){
+						aiCalcular();
+					}
 				}
 			}
 		});
@@ -112,9 +119,9 @@ public class ReversiActivity extends Activity {
 			Log.e("onBoardClick", "机器放置棋子成功"+flag);
 			if(flag){
 				sendMessage(1);
-				if(board.getPutableList(selfchess).size()==0){
-					aiCalcular();
-				}
+			}
+			if(board.getPutableList(selfchess).size()!=0){
+				reversiView.canOnclick = true;
 			}
 		}
     }

@@ -1,5 +1,6 @@
 package com.prince.reversi.service;
 
+import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -268,7 +269,12 @@ public class ReversiBoard {
 	public int[] getData(){
 		return boardPanel;
 	}
-	
+	public Step getLastStep(){
+		int size = chessStepList.size();
+		if(size>0)
+			return chessStepList.get(size-1);
+		return null;
+	}
 	/**
 	 * ÖØÖÃÓÎÏ·
 	 */
