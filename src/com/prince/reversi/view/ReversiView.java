@@ -72,7 +72,7 @@ public class ReversiView extends View{
 		paint = new Paint();
 	}
 	private void initResouce(){
-		boardBitmap = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.board);
+		boardBitmap = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.board1);
 		boardWhith = boardBitmap.getWidth();
 		blackChess = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.blackchess);
 		whiteChess = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.whitechess);
