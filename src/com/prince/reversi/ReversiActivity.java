@@ -6,13 +6,14 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.prince.reversi.bean.Point;
+import com.prince.reversi.bean.Step;
 import com.prince.reversi.service.ReversiAi;
 import com.prince.reversi.service.ReversiBoard;
 import com.prince.reversi.view.ReversiView;
@@ -23,7 +24,16 @@ public class ReversiActivity extends Activity {
 	private ReversiBoard board;
 	private ReversiAi ai;
 	private Handler handler;
-	private Button xian;
+	
+	private LinearLayout gameBeginLinear;
+	private LinearLayout gameMsgLinear;
+	private TextView gameOverMsg;
+	private TextView blackChessCount;
+	private TextView whiteChessCount;
+	private Button robotxian;
+	private Button playerxian;
+	private Button resetGameButton;
+	private Button regretButton;
 	
 	private int selfchess=ReversiBoard.BLACK;
 	private int robotChess = ReversiBoard.WHITE;
@@ -33,6 +43,7 @@ public class ReversiActivity extends Activity {
         setContentView(R.layout.main);
         initBoard();
         initView();
+        addListenner();
         initHandler();
     }
     private void initHandler(){
@@ -43,20 +54,35 @@ public class ReversiActivity extends Activity {
 	        			reversiView.drawReversiViewByBoard(board,selfchess);
 	        			break;
 	        		case 2:
-	        			Long time = (Long)message.obj;
-	        			Toast.makeText(ReversiActivity.this, "计算花费"+time+"ms", Toast.LENGTH_SHORT).show();
+	        			String gamemsg = (String)message.obj;
+	        			parseGameMsg(gamemsg);
 	        			break;
 	        		case 3:
 	        			String msg = (String)message.obj;
-	        			Toast.makeText(ReversiActivity.this, msg, Toast.LENGTH_SHORT).show();
+	        			parseGameMsg(msg);
 	        			break;
+	        		case 4:
+	        			String blackWhiteStr = (String)message.obj;
+	        			String[] strs = blackWhiteStr.split("_");
+	        			blackChessCount.setText(strs[0]);
+	        	    	whiteChessCount.setText(strs[1]);
 	        	}
 	        }  
 	    };
     }
     public void initView(){
     	reversiView = (ReversiView)findViewById(R.id.reversiView);
-    	xian = (Button)findViewById(R.id.xian);
+    	gameBeginLinear = (LinearLayout)findViewById(R.id.gameBeginLinear);
+    	gameMsgLinear = (LinearLayout)findViewById(R.id.gameMsgLinear);
+    	playerxian = (Button)findViewById(R.id.playerxian);
+    	robotxian = (Button)findViewById(R.id.robotxian);
+    	gameOverMsg = (TextView)findViewById(R.id.gameOverMsg);
+    	blackChessCount = (TextView)findViewById(R.id.blackChessCount);
+    	whiteChessCount = (TextView)findViewById(R.id.whiteChessCount);
+    	resetGameButton = (Button)findViewById(R.id.resetGameButton);
+    	regretButton = (Button)findViewById(R.id.regretButton);
+    }
+    private void addListenner(){	
     	reversiView.addViewStateListenner(new ViewStateListenner() {
 			@Override
 			public void onPrepared() {
@@ -68,10 +94,7 @@ public class ReversiActivity extends Activity {
 					reversiView.canOnclick = true;
 					return ;
 				}
-				Log.e("onBoardClick", "点击棋盘x_y："+x+"_"+y);
-				Log.e("onBoardClick", "当前棋子："+selfchess);
 				boolean flag = board.putChessInPosition(y, x, selfchess);
-				Log.e("onBoardClick", "放置棋子成功"+flag);
 				if(flag){
 					reversiView.drawReversiViewByBoard(board,robotChess);
 				}else{
@@ -80,29 +103,101 @@ public class ReversiActivity extends Activity {
 			}
 			@Override
 			public void onLastChessDraw(int deschess) {
+				parseChessCount();
 				if(board.isGameOver()){
 					sendMessage(3, "游戏结束");
 					return;
 				}
 				if(deschess==selfchess){
 					if(board.getPutableList(robotChess).size()!=0){
+						sendMessage(2, "机器人思考中");
 						aiCalcular();
+					}else{
+						sendMessage(2, "机器人无子可下，请您继续");
 					}
 				}else{
 					if(board.getPutableList(selfchess).size()==0){
+						sendMessage(2, "机器人思考中");
 						aiCalcular();
 					}
 				}
 			}
 		});
-    	xian.setOnClickListener(new OnClickListener() {
+    	robotxian.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				selfchess=ReversiBoard.WHITE;
 				robotChess = ReversiBoard.BLACK;
 				aiCalcular();
+				hideGameBeginLinear();
+				showGameMsgLinear();
 			}
 		});
+    	playerxian.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				reversiView.canOnclick = true;
+				sendMessage(2, "请落子..");
+				hideGameBeginLinear();
+				showGameMsgLinear();
+			}
+		});
+    	resetGameButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				resetGame();
+			}
+		});
+    	regretButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				regretGame();
+				reversiView.drawReversiViewByBoardNoMovie(board,selfchess);
+			}
+		});
+    }
+    private void resetGame(){
+    	board.resetGame();
+    	reversiView.drawReversiViewByBoardNoMovie(board,selfchess);
+    	reversiView.canOnclick = false;
+    	hideGameMsgLinear();
+    	showGameBeginLinear();
+    }
+    private void regretGame(){
+    	board.undo();
+    	Step s=board.getLastStep();
+    	if(s!=null){
+    		int chessType = s.getChessType();
+        	if(chessType!=robotChess){
+        		regretGame();
+        	}
+    	}else{
+    		if(selfchess==ReversiBoard.WHITE){
+    			aiCalcular();
+    		}
+    	}
+    }
+    private void showGameBeginLinear(){
+    	gameBeginLinear.setVisibility(View.VISIBLE);
+    }
+    private void hideGameBeginLinear(){
+    	gameBeginLinear.setVisibility(View.INVISIBLE);
+    }
+    private void showGameMsgLinear(){
+    	gameMsgLinear.setVisibility(View.VISIBLE);
+    	parseGameMsg("");
+    	parseChessCount();
+    }
+    private void hideGameMsgLinear(){
+    	gameMsgLinear.setVisibility(View.INVISIBLE);
+    }
+    private void parseGameMsg(String gameMsg){
+    	gameOverMsg.setText(gameMsg);
+    }
+    private void parseChessCount(){
+    	int blackNum = board.getChessCount(ReversiBoard.BLACK);
+    	int whiteNum = board.getChessCount(ReversiBoard.WHITE);
+    	sendMessage(4, blackNum+"_"+whiteNum);
     }
     private void aiCalcular(){
     	int chessType =robotChess;
@@ -110,13 +205,17 @@ public class ReversiActivity extends Activity {
     		long timestart = new Date().getTime();
 			Point p = ai.findBestStep(board, chessType);
 			long timeend = new Date().getTime();
-			sendMessage(2, timeend-timestart);
+			if((timeend-timestart)<500){
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			sendMessage(2, "该你了");
 			int y=p.getY();
 			int x=p.getX();
-			Log.e("onBoardClick", "机器选择棋盘x_y："+x+"_"+y);
-			Log.e("onBoardClick", "当前棋子："+chessType);
 			boolean flag = board.putChessInPosition(y, x, chessType);
-			Log.e("onBoardClick", "机器放置棋子成功"+flag);
 			if(flag){
 				sendMessage(1);
 			}

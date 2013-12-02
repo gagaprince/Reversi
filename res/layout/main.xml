@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="@drawable/sky" >
 	<RelativeLayout 
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
@@ -13,11 +14,108 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content">
 		</com.prince.reversi.view.ReversiView>
-		<Button
-	        android:id="@+id/xian"
-	        android:layout_alignParentBottom="true"
-	        android:layout_width="fill_parent"
-	        android:layout_height="40dp"
-	        android:text="机器人先" />
+		<LinearLayout 
+		    android:id="@+id/gameMsgLinear"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:visibility="invisible"
+		    android:layout_alignParentBottom="true"
+		    >
+		    <LinearLayout 
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        >
+		        <Button 
+		            android:id="@+id/resetGameButton"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:background="@drawable/button"
+		            android:layout_marginRight="5dip"
+		            android:text="重来一局"/>
+		        <Button 
+		            android:id="@+id/regretButton"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:background="@drawable/button"
+		            android:layout_marginLeft="5dip"
+		            android:text="悔一步"/>
+		    </LinearLayout>
+		    <LinearLayout 
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:layout_weight="1">
+		        <TextView 
+		            android:id="@+id/gameOverMsg"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:textSize="24sp"
+		            android:textColor="#ff9f8936"
+		            android:text=""/>
+		    </LinearLayout>
+		    <LinearLayout 
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1">
+		        <LinearLayout 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="center"
+		            android:layout_weight="1">
+		            <ImageView android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:background="@drawable/blackchess"/>
+		            <TextView 
+		                android:id="@+id/blackChessCount"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:textSize="24sp"
+		                android:textColor="#ff9f8936"
+		                android:text="黑方"/>
+		            
+		        </LinearLayout>
+		        <LinearLayout 
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="center"
+		            android:layout_weight="1">
+		            <ImageView android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:background="@drawable/whitechess"/>
+		            <TextView 
+		                android:id="@+id/whiteChessCount"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:textSize="24sp"
+		                android:textColor="#ff9f8936"
+		                android:text="白方"/>
+		        </LinearLayout>
+		    </LinearLayout>
+		</LinearLayout>
+		<LinearLayout 
+		    android:id="@+id/gameBeginLinear"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentBottom="true"
+		    android:gravity="center"
+		    android:orientation="horizontal"
+		    >
+		    <Button
+		        android:id="@+id/robotxian"
+		        android:layout_width="wrap_content"
+		        android:layout_height="40dp"
+		        android:background="@drawable/button"
+		        android:layout_marginRight="5dip"
+		        android:text="机器人先" />
+		    <Button
+		        android:id="@+id/playerxian"
+		        android:layout_width="wrap_content"
+		        android:layout_height="40dp"
+		        android:layout_marginLeft="5dip"
+		        android:background="@drawable/button"
+		        android:text="玩家先" />
+		</LinearLayout>
 	</RelativeLayout>
 </LinearLayout>

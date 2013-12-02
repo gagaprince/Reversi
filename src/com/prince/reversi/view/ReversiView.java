@@ -52,7 +52,7 @@ public class ReversiView extends View{
 	
 	private Map<String,Integer> hasPutChessType;
 	
-	public boolean canOnclick=true;
+	public boolean canOnclick=false;
 	
 	private List<ViewStateListenner> viewStateListennerList;
 	public ReversiView(Context context, AttributeSet attrs) {
@@ -117,8 +117,24 @@ public class ReversiView extends View{
 		drawLastChess(board);
 		postInvalidate();
 	}
+	public void drawReversiViewByBoardNoMovie(ReversiBoard board,int currentChess){
+		hasPutChessType.clear();
+		drawBoard();//绘制棋盘
+		drawChessReal(board);//绘制棋子
+		drawCanput(board,currentChess);//绘制可以下子的位置
+		drawLastChess(board);
+		postInvalidate();
+	}
 	private void drawBoard(){
 		outCanvas.drawBitmap(boardBitmap,0,0, paint);
+	}
+	private void drawChessReal(ReversiBoard board){
+		for(int i=0;i<ReversiBoard.BOARD_LENGTH;i++){
+			for(int j=0;j<ReversiBoard.BOARD_LENGTH;j++){
+				int chess = board.getChessByPosition(i, j);
+				drawChess(chess, j, i);
+			}
+		}
 	}
 	private void drawChess(ReversiBoard board){
 		final List<Point> changChessList = new ArrayList<Point>();
@@ -180,6 +196,17 @@ public class ReversiView extends View{
 			drawChess(blackChess, j, i);
 		}else if(chess==ReversiBoard.WHITE){
 			drawChess(whiteChess, j, i);
+		}else{
+			int left = marginLeft+chessWhith*j;
+			int top = marginTop+chessHeight*i;
+			int right = left+chessWhith;
+			int bottom = top+chessHeight;
+			synchronized(outCanvas){
+				outCanvas.save();
+				outCanvas.clipRect(new Rect(left, top, right, bottom));
+				drawBoard();
+				outCanvas.restore();
+			}
 		}
 		synchronized (hasPutChessType) {
 			hasPutChessType.put(i+"_"+j, chess);
@@ -289,16 +316,7 @@ public class ReversiView extends View{
 			this.isLastChess = isLastChess;
 		}
 		public void run(){
-			int left = marginLeft+chessWhith*chessX;
-			int top = marginTop+chessHeight*chessY;
-			int right = left+chessWhith;
-			int bottom = top+chessHeight;
-			synchronized(outCanvas){
-				outCanvas.save();
-				outCanvas.clipRect(new Rect(left, top, right, bottom));
-				drawBoard();
-				outCanvas.restore();
-			}
+			drawChess(ReversiBoard.BLANK, chessX, chessY);
 			drawChess(blackWhiteChess, chessX, chessY);
 			postInvalidate();
 			try {
