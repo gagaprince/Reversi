@@ -12,7 +12,8 @@
 	    <com.prince.reversi.view.ReversiView
 		    android:id="@+id/reversiView"
 		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content">
+		    android:layout_height="wrap_content"
+		    android:layout_margin="15dip">
 		</com.prince.reversi.view.ReversiView>
 		<LinearLayout 
 		    android:id="@+id/gameMsgLinear"
@@ -21,27 +22,9 @@
 		    android:orientation="vertical"
 		    android:visibility="invisible"
 		    android:layout_alignParentBottom="true"
+		    android:layout_margin="20dp"
 		    >
-		    <LinearLayout 
-		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:gravity="center"
-		        >
-		        <Button 
-		            android:id="@+id/resetGameButton"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:background="@drawable/button"
-		            android:layout_marginRight="5dip"
-		            android:text="重来一局"/>
-		        <Button 
-		            android:id="@+id/regretButton"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:background="@drawable/button"
-		            android:layout_marginLeft="5dip"
-		            android:text="悔一步"/>
-		    </LinearLayout>
+		    
 		    <LinearLayout 
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
@@ -93,6 +76,27 @@
 		                android:text="白方"/>
 		        </LinearLayout>
 		    </LinearLayout>
+		    <LinearLayout 
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:layout_marginBottom="10dp"
+		        >
+		        <Button 
+		            android:id="@+id/resetGameButton"
+		            android:layout_width="wrap_content"
+		            android:layout_height="40dp"
+		            android:background="@drawable/button"
+		            android:layout_marginRight="5dip"
+		            android:text="重来一局"/>
+		        <Button 
+		            android:id="@+id/regretButton"
+		            android:layout_width="wrap_content"
+		            android:layout_height="40dp"
+		            android:background="@drawable/button"
+		            android:layout_marginLeft="5dip"
+		            android:text="悔一步"/>
+		    </LinearLayout>
 		</LinearLayout>
 		<LinearLayout 
 		    android:id="@+id/gameBeginLinear"
@@ -101,6 +105,7 @@
 		    android:layout_alignParentBottom="true"
 		    android:gravity="center"
 		    android:orientation="horizontal"
+		    android:layout_marginBottom="40dp"
 		    >
 		    <Button
 		        android:id="@+id/robotxian"

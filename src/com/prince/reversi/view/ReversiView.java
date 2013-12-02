@@ -324,6 +324,7 @@ public class ReversiView extends View{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			drawChess(ReversiBoard.BLANK, chessX, chessY);
 			drawChess(desChess, chessX, chessY);
 			postInvalidate();
 			if(isLastChess){
