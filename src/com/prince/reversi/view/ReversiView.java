@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -34,10 +35,12 @@ public class ReversiView extends View{
 	private Bitmap canputChess;
 	private Bitmap blackWhiteChess;
 	
-	private int marginLeft=21;
-	private int marginTop=21;
-	private int chessWhith=56;
-	private int chessHeight=56;
+	private float marginLeft=20;
+	private float marginTop=19;
+	private float marginRight=21;
+	private float marginBottom=20;
+	private float chessWhith=56;
+	private float chessHeight=56;
 	
 	private int boardWhith;
 	
@@ -73,11 +76,17 @@ public class ReversiView extends View{
 	}
 	private void initResouce(){
 		boardBitmap = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.board1);
-		boardWhith = boardBitmap.getWidth();
 		blackChess = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.blackchess);
 		whiteChess = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.whitechess);
 		canputChess = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.lastchess);
 		blackWhiteChess = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.blackwhitechess);
+		boardWhith = boardBitmap.getWidth();
+		marginLeft = ((float)marginLeft)*boardWhith/489;
+		marginRight=((float)marginRight)*boardWhith/489;
+		marginTop = ((float)marginTop)*boardWhith/489;
+		Log.e("margin", "marginLeft="+marginLeft+":marginTop="+marginTop);
+		chessHeight = chessWhith = (boardWhith-marginLeft-marginRight)/8;
+		
 	}
 	
 	private void initPreDrawListenner(){
@@ -96,7 +105,7 @@ public class ReversiView extends View{
         });
 	}
 	private void initBackPhoto(){
-		outCanvasBitmap = Bitmap.createBitmap(489,492, Config.ARGB_8888);
+		outCanvasBitmap = Bitmap.createBitmap(boardWhith,boardWhith, Config.ARGB_8888);
 		realBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
 		outCanvas = new Canvas();
 		realCanvas = new Canvas();
@@ -197,13 +206,13 @@ public class ReversiView extends View{
 		}else if(chess==ReversiBoard.WHITE){
 			drawChess(whiteChess, j, i);
 		}else{
-			int left = marginLeft+chessWhith*j;
-			int top = marginTop+chessHeight*i;
-			int right = left+chessWhith;
-			int bottom = top+chessHeight;
+			float left = (marginLeft+chessWhith*j);
+			float top = (marginTop+chessHeight*i);
+			float right = left+chessWhith;
+			float bottom = top+chessHeight;
 			synchronized(outCanvas){
 				outCanvas.save();
-				outCanvas.clipRect(new Rect(left, top, right, bottom));
+				outCanvas.clipRect(new RectF(left, top, right, bottom));
 				drawBoard();
 				outCanvas.restore();
 			}
@@ -248,8 +257,11 @@ public class ReversiView extends View{
 			if(canOnclick){
 				float upX = event.getX();
 				float upY = event.getY();
-				int x = (int)(upX*boardWhith/viewWidth-marginLeft)/chessWhith;
-				int y = (int)(upY*boardWhith/viewWidth-marginTop)/chessHeight;
+				Log.e("MotionEvent", "x="+upX+":y="+upY);
+				Log.e("MotionEvent", "boardWhith="+boardWhith+":viewWidth="+viewWidth);
+				int x = (int)((upX*boardWhith/viewWidth-marginLeft)/chessWhith);
+				int y = (int)((upY*boardWhith/viewWidth-marginTop)/chessHeight);
+				Log.e("MotionEvent", "xr="+x+":yr="+y);
 				excuteViewOnclick(x, y);
 			}
 			break;

@@ -283,6 +283,7 @@ public class ReversiBoard {
 			boardPanel[i]=BLANK;
 		}
 		setChessByPosition(3, 3, WHITE);
+		setChessByPosition(3, 3, WHITE);
 		setChessByPosition(4, 4, WHITE);
 		setChessByPosition(3, 4, BLACK);
 		setChessByPosition(4, 3, BLACK);
